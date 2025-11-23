@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Game</title>
+    <style>
+        /* Basic styling for a clean, kid‑friendly interface */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f1f7fd;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .leaderboard {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .leaderboard h3 {
+            margin: 0 0 5px;
+            font-size: 1.1em;
+        }
+        .leaderboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        .leaderboard li {
+            margin: 3px 0;
+        }
+        .scoreboard {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .scoreboard span {
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"] {
+            padding: 8px;
+            width: 80%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .feedback {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #2c3e50;
+        }
+        @media (max-width: 600px) {
+            .leaderboard, .scoreboard {
+                position: static;
+                margin: 10px auto;
+            }
+            .container {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {%- if leaderboard %}
+    <div class="leaderboard">
+        <h3>Top 3 Players</h3>
+        <ul>
+            {%- for player in leaderboard %}
+            <li>{{ loop.index }}. {{ player[0] }} - {{ player[1] }}</li>
+            {%- endfor %}
+        </ul>
+    </div>
+    {%- endif %}
+
+    {%- if page != 'login' %}
+    <div class="scoreboard">
+        Total Score: <span>{{ total_score }}</span>
+    </div>
+    {%- endif %}
+
+    <div class="container">
+        {%- if page == 'login' %}
+            <h2>Welcome to the Math Game!</h2>
+            <p>Please enter your name to start playing.</p>
+            {%- if error %}
+            <p style="color:red">{{ error }}</p>
+            {%- endif %}
+            <form method="POST" action="{{ url_for('index') }}">
+                <input type="text" name="name" placeholder="Enter your name" required />
+                <br>
+                <button type="submit">Start Game</button>
+            </form>
+        {%- elif page == 'game' %}
+            <h2>Question {{ progress }} of {{ question_count }}</h2>
+            <p><strong>{{ question.a }} {{ question.op }} {{ question.b }} = ?</strong></p>
+            <form method="POST" action="{{ url_for('game') }}">
+                <input type="number" name="answer" placeholder="Your answer" autocomplete="off" required />
+                <br>
+                <button type="submit">Submit</button>
+            </form>
+            {%- if feedback %}
+            <p class="feedback">{{ feedback }}</p>
+            {%- endif %}
+        {%- elif page == 'game_over' %}
+            <h2>Game Over!</h2>
+            <p>You scored {{ final_score }} out of 10.</p>
+            <p>Your total score: {{ total_score }}</p>
+            <button onclick="window.location.href='{{ url_for('index') }}'">Play Again</button>
+            <button onclick="window.location.href='{{ url_for('logout') }}'">Change Player</button>
+        {%- endif %}
+    </div>
+</body>
+</html>
