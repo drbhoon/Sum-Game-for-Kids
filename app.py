@@ -277,10 +277,15 @@ def generate_questions(count: int = 10) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
-@app.before_first_request
-def before_first_request_func() -> None:
-    """Initialize the database table before handling the first request."""
-    init_db()
+# existing imports and app initialization…
+
+init_db()  # call this once at import time to create the table
+
+# remove or comment out:
+# @app.before_first_request
+# def before_first_request_func():
+#     init_db()
+
 
 
 @app.route('/', methods=['GET', 'POST'])
