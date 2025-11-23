@@ -154,7 +154,7 @@ def init_db() -> None:
         id SERIAL PRIMARY KEY,
         name TEXT UNIQUE NOT NULL,
         total_score INTEGER NOT NULL DEFAULT 0,
-        last_played TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        lat_played TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     """
     execute_query(query)
