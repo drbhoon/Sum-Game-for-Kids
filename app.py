@@ -154,7 +154,7 @@ def init_db() -> None:
         id SERIAL PRIMARY KEY,
         name TEXT UNIQUE NOT NULL,
         total_score INTEGER NOT NULL DEFAULT 0,
-        last_played TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        lat_played TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     """
     execute_query(query)
@@ -181,7 +181,7 @@ def create_player(name: str) -> None:
     """
     execute_query(
         """
-        INSERT INTO players (name, total_score, last_played)
+        INSERT INTO players (name, total_score, lat_played)
         VALUES (%s, 0, NOW())
         ON CONFLICT (name) DO NOTHING;
         """,
@@ -190,12 +190,12 @@ def create_player(name: str) -> None:
 
 
 def update_player_score(name: str, additional_points: int) -> None:
-    """Increment a player's total score and update last_played timestamp."""
+    """Increment a player's total score and update lat_played timestamp."""
     execute_query(
         """
         UPDATE players
         SET total_score = total_score + %s,
-            last_played = NOW()
+            lat_played = NOW()
         WHERE name = %s;
         """,
         (additional_points, name),
@@ -206,14 +206,14 @@ def get_leaderboard(limit: int = 3) -> List[tuple]:
     """Return a list of top players sorted by total score descending.
 
     If multiple players have the same score, the one who played earlier
-    (smaller last_played) appears first. Returns an empty list if there
+    (smaller lat_played) appears first. Returns an empty list if there
     are no players or if the database is unreachable.
     """
     rows = execute_query(
         """
         SELECT name, total_score
         FROM players
-        ORDER BY total_score DESC, last_played ASC
+        ORDER BY total_score DESC, lat_played ASC
         LIMIT %s;
         """,
         (limit,),
@@ -226,7 +226,7 @@ def prune_players(max_players: int = 100) -> None:
     """Delete player records beyond the most recent ``max_players`` entries.
 
     We retain only the most recently played 100 players by ordering on
-    ``last_played DESC``. This helps limit database size while keeping
+    ``lat_played DESC``. This helps limit database size while keeping
     leaderboards meaningful. If the table is smaller than ``max_players``
     rows, nothing is deleted.
     """
@@ -235,7 +235,7 @@ def prune_players(max_players: int = 100) -> None:
         DELETE FROM players
         WHERE id NOT IN (
             SELECT id FROM players
-            ORDER BY last_played DESC
+            ORDER BY lat_played DESC
             LIMIT %s
         );
         """,
